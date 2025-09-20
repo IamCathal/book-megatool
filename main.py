@@ -31,14 +31,30 @@ app.add_middleware(
 MIN_CHARS_PER_SECTION = 1000
 
 
+def printDetailsForBook(book):
+    if book is None:
+        print("book is null")
+        return
+
+    title = book.get_metadata('DC', 'title')[0][0]
+    author = book.get_metadata('DC', 'creator')[0][0]
+    isbn = book.get_metadata('DC', 'identifier')[0][0]
+
+    logger.info(f"Book details: Title: '{title}' Author: '{author}' ISBN: '{isbn}'")
+
+
 def extractContentFromEpub(filePath: Path):
     logger.info(f"Extracting content from epub: {filePath}")
+
     book = epub.read_epub(filePath)
+    printDetailsForBook(book)
+
     text = []
     for document in book.get_items():
         if document.get_type() == ebooklib.ITEM_DOCUMENT:
             textContent = clean_html(document.get_content().decode('utf-8'))
             text.append(textContent)
+
     logger.info(f"Extracted {len(text)} document sections from epub.")
     return ' '.join(text)
 

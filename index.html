@@ -5,58 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Megatool Search</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #232526 0%, #414345 100%);
-      min-height: 100vh;
+    html, body {
+      height: 100%;
       margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f8fa;
+      color: #23272f;
+    }
+    body {
+      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    .sidebar {
+      width: 280px;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 2.5rem;
+      box-shadow: 2px 0 8px rgba(60,60,60,0.04);
+      min-height: 100vh;
+    }
+    .tablist {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0 1.5rem;
+    }
+    .tab {
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #23272f;
+      font-weight: 600;
+      font-size: 1.08rem;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 0.2rem;
+      transition: background 0.15s;
+      text-align: left;
+    }
+    .tab.active, .tab:focus {
+      background: #6366f1;
+      color: #fff;
+      outline: none;
+    }
+    .main-content {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      color: #f5f6fa;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f7f8fa;
     }
     .container {
-      background: rgba(34, 40, 49, 0.95);
-      border-radius: 18px;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      background: #fff;
       padding: 2.5rem 2rem 2rem 2rem;
-      margin-top: 4rem;
       width: 100%;
-      max-width: 480px;
+      height: 100%;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      margin: 0 auto;
     }
     h1 {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 2rem;
       margin-bottom: 0.5rem;
       letter-spacing: 0.01em;
       text-align: center;
+      color: #23272f;
     }
     label {
       font-size: 1rem;
       font-weight: 500;
       margin-bottom: 0.3rem;
-      color: #a5b4fc;
+      color: #6366f1;
     }
     input[type="file"] {
-      background: #23272f;
-      color: #f5f6fa;
-      border: none;
+      background: #f1f5f9;
+      color: #23272f;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 0.7rem;
       font-size: 1rem;
       margin-bottom: 0.5rem;
     }
-    input[type="text"] {
-      width: 100%;
+    textarea[type="text"] {
       padding: 0.7rem;
       border-radius: 8px;
-      border: none;
-      background: #23272f;
-      color: #f5f6fa;
+      border: 1px solid #e5e7eb;
+      background: #f1f5f9;
+      color: #23272f;
       font-size: 1rem;
       margin-bottom: 0.5rem;
     }
@@ -73,7 +120,7 @@
       min-width: 2rem;
       text-align: center;
       font-weight: 600;
-      color: #a5b4fc;
+      color: #6366f1;
     }
     button {
       background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
@@ -97,7 +144,7 @@
       margin: 1.5rem 0 0.5rem 0;
     }
     .spinner {
-      border: 4px solid #23272f;
+      border: 4px solid #f1f5f9;
       border-top: 4px solid #6366f1;
       border-radius: 50%;
       width: 36px;
@@ -110,11 +157,11 @@
     }
     .results {
       margin-top: 1.5rem;
-      background: #23272f;
+      background: #f1f5f9;
       border-radius: 12px;
       padding: 1.2rem;
       box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
-      color: #e0e7ef;
+      color: #23272f;
       font-size: 1rem;
       max-height: 350px;
       overflow-y: auto;
@@ -122,7 +169,7 @@
     .result-item {
       margin-bottom: 1.2rem;
       padding-bottom: 1rem;
-      border-bottom: 1px solid #374151;
+      border-bottom: 1px solid #e5e7eb;
     }
     .result-item:last-child {
       border-bottom: none;
@@ -130,7 +177,7 @@
       padding-bottom: 0;
     }
     .similarity {
-      color: #60a5fa;
+      color: #6366f1;
       font-weight: 600;
       font-size: 0.98rem;
       margin-bottom: 0.3rem;
@@ -138,43 +185,117 @@
     .section-preview {
       white-space: pre-line;
       font-size: 0.98rem;
-      color: #f5f6fa;
+      color: #23272f;
+    }
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 60px;
+        padding-top: 1.2rem;
+      }
+      .tablist {
+        margin: 0 0.5rem;
+      }
+      .main-content {
+        padding: 0.5rem;
+      }
     }
     @media (max-width: 600px) {
       .container {
         padding: 1.2rem 0.5rem;
-        margin-top: 1.5rem;
       }
       h1 {
         font-size: 1.3rem;
       }
     }
+    .semantic-search-input, .semantic-topn-input {
+        width: 80%;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Book Megatool Search</h1>
-    <form id="searchForm">
-      <label for="file">Upload EPUB file</label>
-      <input type="file" id="file" name="file" accept=".epub" required />
-
-      <label for="query">Search Query</label>
-      <input type="text" id="query" name="query" placeholder="Enter your search query..." required />
-
-      <label for="top_n">Number of Results</label>
-      <div class="slider-row">
-        <input type="range" id="top_n" name="top_n" min="1" max="10" value="1" />
-        <span class="slider-value" id="sliderValue">1</span>
-      </div>
-
-      <button type="submit">Search</button>
-    </form>
-    <div class="loading" id="loading" style="display:none;">
-      <div class="spinner"></div>
+  <div class="sidebar">
+    <div class="tablist" role="tablist">
+      <button class="tab active" id="tab-search" role="tab" aria-selected="true" tabindex="0">Semantic Search</button>
+      <button class="tab" id="tab-info" role="tab" aria-selected="false" tabindex="-1">EPUB Info</button>
     </div>
-    <div class="results" id="results" style="display:none;"></div>
+  </div>
+  <div class="main-content">
+
+
+    <div class="container" id="search-view">
+      <h1>Semantic Search</h1>
+      <form id="searchForm">
+
+
+        <label for="file">Upload EPUB file</label>
+        <br />
+        <input type="file" id="file" name="file" accept=".epub" required />
+
+        <br />
+        <br />
+        <br />
+
+        <label for="query">Search Query</label>
+        <br />
+        <textarea 
+            rows="4"
+            class="semantic-search-input" type="text" id="query" name="query" placeholder="Enter your search query..." required>
+        </textarea>
+
+        <br />
+        <br />
+
+        <label for="top_n">Number of Results</label>
+        <br />
+        <div class="slider-row semantic-topn-input">
+          <input type="range" id="top_n" name="top_n" min="1" max="10" value="1" />
+          <span class="slider-value" id="sliderValue">1</span> results
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
+      <div class="loading" id="loading" style="display:none;">
+        <div class="spinner"></div>
+      </div>
+      <div class="results" id="results" style="display:none;"></div>
+    </div>
+
+
+
+    <div class="container" id="info-view" style="display:none; align-items:center; justify-content:center; text-align:center;">
+      <h1>EPUB Info</h1>
+      <div style="color:#6366f1; font-size:1.1rem; margin-top:2rem;">EPUB info and metadata will appear here.<br><br><em>Coming soon...</em></div>
+    </div>
   </div>
   <script>
+    // Tab switching logic
+    const tabSearch = document.getElementById('tab-search');
+    const tabInfo = document.getElementById('tab-info');
+    const searchView = document.getElementById('search-view');
+    const infoView = document.getElementById('info-view');
+
+    tabSearch.addEventListener('click', () => {
+      tabSearch.classList.add('active');
+      tabSearch.setAttribute('aria-selected', 'true');
+      tabSearch.setAttribute('tabindex', '0');
+      tabInfo.classList.remove('active');
+      tabInfo.setAttribute('aria-selected', 'false');
+      tabInfo.setAttribute('tabindex', '-1');
+      searchView.style.display = '';
+      infoView.style.display = 'none';
+    });
+    tabInfo.addEventListener('click', () => {
+      tabInfo.classList.add('active');
+      tabInfo.setAttribute('aria-selected', 'true');
+      tabInfo.setAttribute('tabindex', '0');
+      tabSearch.classList.remove('active');
+      tabSearch.setAttribute('aria-selected', 'false');
+      tabSearch.setAttribute('tabindex', '-1');
+      searchView.style.display = 'none';
+      infoView.style.display = '';
+    });
+
+    // Search form logic
     const form = document.getElementById('searchForm');
     const loading = document.getElementById('loading');
     const resultsDiv = document.getElementById('results');
