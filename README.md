@@ -1,5 +1,7 @@
 # book-megatool
 
+![](semantic_search.png)
+
 ```
 curl -X POST "http://localhost:8000/search-epub/"  \
     -F "file=./americanGods.epub"    \
