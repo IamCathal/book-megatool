@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Megatool Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #232526 0%, #414345 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      color: #f5f6fa;
+    }
+    .container {
+      background: rgba(34, 40, 49, 0.95);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      padding: 2.5rem 2rem 2rem 2rem;
+      margin-top: 4rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      color: #a5b4fc;
+    }
+    input[type="file"] {
+      background: #23272f;
+      color: #f5f6fa;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: none;
+      background: #23272f;
+      color: #f5f6fa;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #6366f1;
+    }
+    .slider-value {
+      min-width: 2rem;
+      text-align: center;
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+    button {
+      background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.5rem 0 0.5rem 0;
+    }
+    .spinner {
+      border: 4px solid #23272f;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .results {
+      margin-top: 1.5rem;
+      background: #23272f;
+      border-radius: 12px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+      color: #e0e7ef;
+      font-size: 1rem;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    .result-item {
+      margin-bottom: 1.2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #374151;
+    }
+    .result-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .similarity {
+      color: #60a5fa;
+      font-weight: 600;
+      font-size: 0.98rem;
+      margin-bottom: 0.3rem;
+    }
+    .section-preview {
+      white-space: pre-line;
+      font-size: 0.98rem;
+      color: #f5f6fa;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.2rem 0.5rem;
+        margin-top: 1.5rem;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Book Megatool Search</h1>
+    <form id="searchForm">
+      <label for="file">Upload EPUB file</label>
+      <input type="file" id="file" name="file" accept=".epub" required />
+
+      <label for="query">Search Query</label>
+      <input type="text" id="query" name="query" placeholder="Enter your search query..." required />
+
+      <label for="top_n">Number of Results</label>
+      <div class="slider-row">
+        <input type="range" id="top_n" name="top_n" min="1" max="10" value="1" />
+        <span class="slider-value" id="sliderValue">1</span>
+      </div>
+
+      <button type="submit">Search</button>
+    </form>
+    <div class="loading" id="loading" style="display:none;">
+      <div class="spinner"></div>
+    </div>
+    <div class="results" id="results" style="display:none;"></div>
+  </div>
+  <script>
+    const form = document.getElementById('searchForm');
+    const loading = document.getElementById('loading');
+    const resultsDiv = document.getElementById('results');
+    const slider = document.getElementById('top_n');
+    const sliderValue = document.getElementById('sliderValue');
+
+    slider.addEventListener('input', () => {
+      sliderValue.textContent = slider.value;
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resultsDiv.style.display = 'none';
+      resultsDiv.innerHTML = '';
+      loading.style.display = 'flex';
+
+      const fileInput = document.getElementById('file');
+      const queryInput = document.getElementById('query');
+      const topN = slider.value;
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please upload an EPUB file.');
+        loading.style.display = 'none';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      // The backend expects query and top_n as headers, so we use fetch with headers
+      try {
+        const response = await fetch('http://localhost:8000/search-epub/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-QUERY': queryInput.value,
+            'X-TOP-N': topN
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Search failed: ' + response.statusText);
+        }
+        const data = await response.json();
+        showResults(data.results);
+      } catch (err) {
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = `<div style="color:#f87171;">${err.message}</div>`;
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+
+    function showResults(results) {
+      if (!results || results.length === 0) {
+        resultsDiv.innerHTML = '<div>No results found.</div>';
+      } else {
+        resultsDiv.innerHTML = results.map(r => `
+          <div class="result-item">
+            <div class="similarity">Similarity: ${r.similarity.toFixed(3)}</div>
+            <div class="section-preview">${escapeHtml(r.section_preview)}</div>
+          </div>
+        `).join('');
+      }
+      resultsDiv.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
