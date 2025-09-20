@@ -255,6 +255,13 @@
           <span class="slider-value" id="sliderValue">1</span> results
         </div>
 
+        <label for="chunk_size">Chunk size</label>
+        <br />
+        <div class="slider-row semantic-topn-input">
+          <input type="number" id="chunk_size" name="chunk_size" min="40" max="1000" value="100" />
+        </div>
+
+
         <button type="submit">Search</button>
       </form>
       <div class="loading" id="loading" style="display:none;">
@@ -319,6 +326,7 @@
 
       const fileInput = document.getElementById('file');
       const queryInput = document.getElementById('query');
+      const chunkSize = document.getElementById("chunk_size").value;
       const topN = slider.value;
       const file = fileInput.files[0];
       if (!file) {
@@ -328,14 +336,14 @@
       }
       const formData = new FormData();
       formData.append('file', file);
-      // The backend expects query and top_n as headers, so we use fetch with headers
       try {
         const response = await fetch('http://localhost:8000/search-epub/', {
           method: 'POST',
           body: formData,
           headers: {
             'X-QUERY': queryInput.value,
-            'X-TOP-N': topN
+            'X-TOP-N': topN,
+            'X-CHUNK-SIZE': chunkSize
           }
         });
         if (!response.ok) {

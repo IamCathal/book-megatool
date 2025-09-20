@@ -28,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MIN_CHARS_PER_SECTION = 1000
+DEFAULT_CHUNK_SIZE = 1000
 
 
 def printDetailsForBook(book):
@@ -59,7 +59,7 @@ def extractContentFromEpub(filePath: Path):
     return ' '.join(text)
 
 
-def splitIntoSections(text: str):
+def splitIntoSections(text: str, chunk_size: int):
     logger.info("Splitting text into sections...")
     paragraphs = text.split("\n\n")
     sections = []
@@ -67,7 +67,7 @@ def splitIntoSections(text: str):
     for thisParagraph in paragraphs:
         if len(thisParagraph) > 80:
             currentSection += ' ' + thisParagraph.strip()
-            if len(currentSection) >= MIN_CHARS_PER_SECTION:
+            if len(currentSection) >= chunk_size:
                 sections.append(currentSection)
                 currentSection = ''
     if currentSection:
@@ -121,8 +121,13 @@ async def search_epub(
 
     query = req.headers.get("X-QUERY")
     top_n = int(req.headers.get("X-TOP-N"))
+    chunk_size = int(req.headers.get("X-CHUNK-SIZE"))
 
-    logger.info(f"Received file upload: {file.filename}, query: '{query}', top_n: {top_n}")
+    logger.info(f"Received file upload: {file.filename}, query: '{query}', top_n: {top_n}, chunk_size: {chunk_size}")
+
+    if chunk_size < 40:
+        chunk_size = DEFAULT_CHUNK_SIZE
+    logger.info(f"Received chunk size {chunk_size} < 40, using default value of {DEFAULT_CHUNK_SIZE} instead")
 
     # Save uploaded file to a temp file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".epub") as tmp:
@@ -134,7 +139,7 @@ async def search_epub(
     try:
         bookContent = extractContentFromEpub(tmp_path)
         logger.info(f"Book content length: {len(bookContent)} characters")
-        sections = splitIntoSections(bookContent)
+        sections = splitIntoSections(bookContent, chunk_size)
         results = find_similar_sections(query, sections, top_n=top_n)
         # Only return preview of section (first 1000 chars)
         response = [
