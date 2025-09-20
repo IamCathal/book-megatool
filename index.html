@@ -22,7 +22,7 @@
       justify-content: stretch;
     }
     .sidebar {
-      width: 280px;
+      width: 20rem;
       background: #fff;
       border-right: 1px solid #e5e7eb;
       display: flex;
@@ -156,6 +156,7 @@
       100% { transform: rotate(360deg); }
     }
     .results {
+      width: 100%;
       margin-top: 1.5rem;
       background: #f1f5f9;
       border-radius: 12px;
@@ -163,8 +164,6 @@
       box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
       color: #23272f;
       font-size: 1rem;
-      max-height: 350px;
-      overflow-y: auto;
     }
     .result-item {
       margin-bottom: 1.2rem;
@@ -210,6 +209,9 @@
     .semantic-search-input, .semantic-topn-input {
         width: 80%;
     }
+    .container-content {
+        padding-right: 5rem;
+    }
   </style>
 </head>
 <body>
@@ -223,7 +225,8 @@
 
 
     <div class="container" id="search-view">
-      <h1>Semantic Search</h1>
+      <div class="container-content">
+        <h1>Semantic Search</h1>
       <form id="searchForm">
 
 
@@ -257,7 +260,9 @@
       <div class="loading" id="loading" style="display:none;">
         <div class="spinner"></div>
       </div>
-      <div class="results" id="results" style="display:none;"></div>
+      <div class="container-content">
+        <div class="results" id="results" style="display:none;"></div>
+      </div>
     </div>
 
 
