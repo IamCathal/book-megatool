@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, UploadFile, File, Header, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import ebooklib
 from ebooklib import epub
@@ -27,6 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 DEFAULT_CHUNK_SIZE = 1000
 
