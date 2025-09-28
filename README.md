@@ -1,3 +1,3 @@
 # book-megatool
 
-![](semantic_search.png)
+![](semantic_search_example.png)
