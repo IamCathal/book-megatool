@@ -3,7 +3,7 @@
 import logging
 from fastapi import FastAPI, UploadFile, File, Header, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import ebooklib
@@ -28,8 +28,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
+# app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 DEFAULT_CHUNK_SIZE = 1000
 
 
@@ -112,7 +111,7 @@ def find_similar_sections(query, sections, top_n=5):
     return [(float(similarities[i]), sections[i]) for i in top_indices[::-1]]
 
 
-@app.post("/search-epub/")
+@app.post("/search-epub")
 async def search_epub(
     req: Request,
     file: UploadFile = File(...),
@@ -164,3 +163,7 @@ async def search_epub(
 def health_check():
     logger.info("Health check requested.")
     return {"status": "ok"}
+
+@app.get("/")
+def serve_index():
+    return FileResponse("static/index.html")

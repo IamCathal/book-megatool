@@ -337,7 +337,7 @@
       const formData = new FormData();
       formData.append('file', file);
       try {
-        const response = await fetch('http://localhost:8000/search-epub/', {
+        const response = await fetch('http://localhost:8000/search-epub', {
           method: 'POST',
           body: formData,
           headers: {
